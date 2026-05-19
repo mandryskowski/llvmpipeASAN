@@ -69,4 +69,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: mesa-llvmpipe-${{ matrix.target }}
-          path: mesa/builddir/install/
+          path: |
+            mesa/builddir/install/
+            mesa/builddir/src/
