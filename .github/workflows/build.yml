@@ -2,6 +2,10 @@ name: Build Mesa with ASan
 on:
   push:
   workflow_dispatch:
+
+permissions:
+  contents: write
+
 jobs:
   build-mesa:
     runs-on: ubuntu-24.04
@@ -72,3 +76,28 @@ jobs:
           path: |
             mesa/builddir/install/
             mesa/builddir/src/
+
+  release:
+    needs: build-mesa
+    runs-on: ubuntu-24.04
+    if: github.ref == 'refs/heads/master'
+    steps:
+      - name: Download Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Zip Artifacts
+        run: |
+          cd artifacts
+          zip -r mesa-llvmpipe-asan.zip mesa-llvmpipe-asan/
+          zip -r mesa-llvmpipe-coverage.zip mesa-llvmpipe-coverage/
+
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: build-${{ github.run_id }}
+          name: "Mesa Master Build (${{ github.sha }})"
+          files: artifacts/*.zip
+          draft: false
+          prerelease: false
