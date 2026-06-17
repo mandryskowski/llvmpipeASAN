@@ -8,8 +8,12 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [asan, coverage]
+        target: [normal, asan, coverage]
         include:
+          - target: normal
+            meson_args: ""
+            extra_flags: ""
+            ld_flags: "-fuse-ld=lld-20"          
           - target: asan
             meson_args: "-Db_sanitize=address -Db_lundef=false"
             extra_flags: ""
@@ -88,6 +92,7 @@ jobs:
       - name: Zip Artifacts
         run: |
           cd artifacts
+          zip -r mesa-llvmpipe-normal.zip mesa-llvmpipe-normal/
           zip -r mesa-llvmpipe-asan.zip mesa-llvmpipe-asan/
           zip -r mesa-llvmpipe-coverage.zip mesa-llvmpipe-coverage/
 
